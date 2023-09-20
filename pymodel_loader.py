@@ -1,4 +1,4 @@
-from shape import Rect, Shape
+from shape import Rect, Complex, Shape
 import json
 
 MODEL_TYPES = ["rect", "circle", "complex"]
@@ -16,13 +16,7 @@ class ModelLoaader:
         if meta["shape_type"] == "rect":
             return self.validate_rect(meta)
         
-        elif meta["shape_type"] == "complex":
-            if not "verticies" in meta:
-                return None
-            
-            if len(meta["verticies"]) == 0:
-                return None
-            
+        elif meta["shape_type"] == "complex":            
             return self.validate_complex(meta)
         
         elif meta["shape_type"] == "circle":
@@ -97,8 +91,33 @@ class ModelLoaader:
         pass
 
     def validate_complex(self, meta: dict):
-        pass
+        # validate verticies
+        if not "verticies" in meta:
+                return None
+            
+        if len(meta["verticies"]) == 0:
+            return None
+        
+        if not self.validate_verticies(meta["verticies"]):
+            return None
+        
+        # validate color
+        if not "color" in meta:
+            return None
+        
+        color: list[int] = meta["color"]
+        
+        if not self.validate_color(color):
+            return None
+        
+        # map verticies to list of integer tuples
+        mapped_verticies = []
+        for vertex_key in meta["verticies"]:
+            vertex = meta["verticies"][vertex_key]
+            mapped_verticies.append((vertex[0], vertex[1]))
 
+        return Complex(mapped_verticies)
+        
     def validate_color(self, arr: list[int]) -> bool:
         # check r, g, b values range
         r, g, b = arr[0], arr[1], arr[2]
