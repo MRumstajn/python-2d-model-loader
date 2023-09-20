@@ -1,4 +1,4 @@
-from shape import Rect, Complex, Shape
+from shape import Rect, Complex, Circle, Shape
 import json
 
 MODEL_TYPES = ["rect", "circle", "complex"]
@@ -23,11 +23,8 @@ class ModelLoaader:
             if not "radius" in meta:
                 return False
             
-            return self.validate_circle()
+            return self.validate_circle(meta)
         
-        
-
-    # TODO add support for multiple objects in one file
     def parse_file(self, file) -> list[Shape]:
         shapes = []
         with open(file, "r") as model_file:
@@ -88,7 +85,23 @@ class ModelLoaader:
         return len(vertex) == 2 and type (vertex[0]) is int and type(vertex[1]) is int
     
     def validate_circle(self, meta: dict):
-        pass
+        # validate radius
+        if not "radius" in meta:
+            return None
+        
+        if not type(meta["radius"]) is int:
+            return None
+        
+        # validate color
+        if not "color" in meta:
+            return None
+        
+        color: list[int] = meta["color"]
+        
+        if not self.validate_color(color):
+            return None
+        
+        return Circle(meta["radius"])
 
     def validate_complex(self, meta: dict):
         # validate verticies

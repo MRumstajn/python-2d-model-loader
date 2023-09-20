@@ -27,4 +27,11 @@ class Complex(Shape):
         super().__init__(ShapeType.COMPLEX)
 
         self.verticies = verticies
+
+
+class Circle(Shape):
+    def __init__(self, radius: int) -> None:
+        super().__init__(ShapeType.CIRCLE)
+
+        self.radius = radius
         
