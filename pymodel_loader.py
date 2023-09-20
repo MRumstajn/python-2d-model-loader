@@ -1,4 +1,4 @@
-from shape import Rect, Complex, Circle, Shape
+from shape import Shape, Rect, Complex, Circle
 import json
 
 MODEL_TYPES = ["rect", "circle", "complex"]
@@ -12,6 +12,15 @@ class ModelLoaader:
         if not meta["shape_type"] in MODEL_TYPES:
             return None
         
+        # validate color
+        if not "color" in meta:
+            return None
+        
+        color: list[int] = meta["color"]
+        
+        if not self.validate_color(color):
+            return None
+
         # check required fields based on type
         if meta["shape_type"] == "rect":
             return self.validate_rect(meta)
@@ -41,6 +50,27 @@ class ModelLoaader:
 
         return shapes
     
+    def are_vertecies_overlaping(self, v1: tuple[int, int], v2: tuple[int, int]) -> bool:
+        return v1[0] >= v2[0] and v1[1] >= v2[1]
+
+    def validate_verticies(self, verticies: dict[str:list[int]]) -> bool:
+        for key in verticies:
+            if not self.validate_vertex(verticies[key]):
+                return False
+            
+        return True
+            
+    def validate_vertex(self, vertex: list[int]) -> bool:
+        return len(vertex) == 2 and type (vertex[0]) is int and type(vertex[1]) is int
+    
+    def validate_color(self, arr: list[int]) -> bool:
+        # check r, g, b values range
+        r, g, b = arr[0], arr[1], arr[2]
+        if (r < 0 or r > 255) or (g < 0 or g > 255) or (b < 0 or b > 255):
+            return False
+        
+        return True
+    
     def validate_rect(self, meta: dict) -> Rect:
         # validate verticies
         if not "verticies" in meta:
@@ -59,30 +89,10 @@ class ModelLoaader:
         # validate both ver
         if not self.validate_verticies(meta["verticies"]):
             return None
-            
-        # validate color
-        if not "color" in meta:
-            return None
         
         color: list[int] = meta["color"]
-        
-        if not self.validate_color(color):
-            return None
-        
-        return Rect(first_vertex[0], first_vertex[1], second_vertex[0], second_vertex[1], color)
-    
-    def are_vertecies_overlaping(self, v1: tuple[int, int], v2: tuple[int, int]) -> bool:
-        return v1[0] >= v2[0] and v1[1] >= v2[1]
 
-    def validate_verticies(self, verticies: dict[str:list[int]]) -> bool:
-        for key in verticies:
-            if not self.validate_vertex(verticies[key]):
-                return False
-            
-        return True
-            
-    def validate_vertex(self, vertex: list[int]) -> bool:
-        return len(vertex) == 2 and type (vertex[0]) is int and type(vertex[1]) is int
+        return Rect(first_vertex[0], first_vertex[1], second_vertex[0], second_vertex[1], color)
     
     def validate_circle(self, meta: dict):
         # validate radius
@@ -98,15 +108,6 @@ class ModelLoaader:
         
         if not type(meta["center_x"]) is int or not type(meta["center_y"]) is int:
             return None
-
-        # validate color
-        if not "color" in meta:
-            return None
-        
-        color: list[int] = meta["color"]
-        
-        if not self.validate_color(color):
-            return None
         
         return Circle(meta["radius"], meta["center_x"], meta["center_y"], meta["color"])
 
@@ -121,15 +122,6 @@ class ModelLoaader:
         if not self.validate_verticies(meta["verticies"]):
             return None
         
-        # validate color
-        if not "color" in meta:
-            return None
-        
-        color: list[int] = meta["color"]
-        
-        if not self.validate_color(color):
-            return None
-        
         # map verticies to list of integer tuples
         mapped_verticies = []
         for vertex_key in meta["verticies"]:
@@ -137,11 +129,3 @@ class ModelLoaader:
             mapped_verticies.append((vertex[0], vertex[1]))
 
         return Complex(mapped_verticies, meta["color"])
-        
-    def validate_color(self, arr: list[int]) -> bool:
-        # check r, g, b values range
-        r, g, b = arr[0], arr[1], arr[2]
-        if (r < 0 or r > 255) or (g < 0 or g > 255) or (b < 0 or b > 255):
-            return False
-        
-        return True
