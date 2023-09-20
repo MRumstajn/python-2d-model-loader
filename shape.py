@@ -23,15 +23,19 @@ class Rect(Shape):
     
 
 class Complex(Shape):
-    def __init__(self, verticies: list[tuple[int, int]]) -> None:
+    def __init__(self, verticies: list[tuple[int, int]], color: list[int, int, int]) -> None:
         super().__init__(ShapeType.COMPLEX)
 
         self.verticies = verticies
+        self.color = color
 
 
 class Circle(Shape):
-    def __init__(self, radius: int) -> None:
+    def __init__(self, radius: int, centerX, centerY, color: list[int, int, int]) -> None:
         super().__init__(ShapeType.CIRCLE)
 
         self.radius = radius
+        self.centerX = centerX
+        self.centerY = centerY
+        self.color = color
         

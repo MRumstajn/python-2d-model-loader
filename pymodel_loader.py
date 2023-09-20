@@ -92,6 +92,13 @@ class ModelLoaader:
         if not type(meta["radius"]) is int:
             return None
         
+        # validate center x and y
+        if not "center_x" in meta or not "center_y" in meta:
+            return None
+        
+        if not type(meta["center_x"]) is int or not type(meta["center_y"]) is int:
+            return None
+
         # validate color
         if not "color" in meta:
             return None
@@ -101,7 +108,7 @@ class ModelLoaader:
         if not self.validate_color(color):
             return None
         
-        return Circle(meta["radius"])
+        return Circle(meta["radius"], meta["center_x"], meta["center_y"], meta["color"])
 
     def validate_complex(self, meta: dict):
         # validate verticies
@@ -129,7 +136,7 @@ class ModelLoaader:
             vertex = meta["verticies"][vertex_key]
             mapped_verticies.append((vertex[0], vertex[1]))
 
-        return Complex(mapped_verticies)
+        return Complex(mapped_verticies, meta["color"])
         
     def validate_color(self, arr: list[int]) -> bool:
         # check r, g, b values range
